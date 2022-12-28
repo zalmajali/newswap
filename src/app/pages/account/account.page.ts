@@ -287,25 +287,41 @@ export class AccountPage implements OnInit {
     this.infiniteScroll.disabled = !this.infiniteScroll.disabled;
   }
   uploadeSecondFile(){
-    let  options = {
-      maximumImagesCount:1,
-    };
-    this.imagePicker.getPictures(options).then((results) => {
-      this.file.resolveLocalFilesystemUrl(results[0]).then((entry:FileEntry)=>{
-        entry.file((file)=>{
-          this.firstFileArray = file;
-          this.firstFileVal = file.name;
-          this.message = "تم تحميل ملف الصورة بنجاح";
-          this.displayResult(this.message);
-        })
-      }).catch(errrsss=>{
+    if(this.platform.is('ios') || this.platform.is('ipad') || this.platform.is('iphone')){
+      let  options = {
+        maximumImagesCount:1,
+      };
+      this.imagePicker.getPictures(options).then((results) => {
+        this.firstFileArray = results[0];
+        const arraySplit = this.foreFileArray.split("/tmp/");
+        this.firstFileVal = arraySplit[1];
+        this.message = "تم تحميل ملف الصورة بنجاح";
+        this.displayResult(this.message);
+      }, (err) => {
         this.message = "لم يتم تحميل ملف الصورة بنجاح";
         this.displayResult(this.message);
-      })
-    }, (err) => {
-      this.message = "لم يتم تحميل ملف الصورة بنجاح";
-      this.displayResult(this.message);
-    });
+      });
+    }else{
+      let  options = {
+        maximumImagesCount:1,
+      };
+      this.imagePicker.getPictures(options).then((results) => {
+        this.file.resolveLocalFilesystemUrl(results[0]).then((entry:FileEntry)=>{
+          entry.file((file)=>{
+            this.firstFileArray = file.localURL;
+            this.firstFileVal = file.name;
+            this.message = "تم تحميل ملف الصورة بنجاح";
+            this.displayResult(this.message);
+          })
+        }).catch(errrsss=>{
+          this.message = "لم يتم تحميل ملف الصورة بنجاح";
+          this.displayResult(this.message);
+        })
+      }, (err) => {
+        this.message = "لم يتم تحميل ملف الصورة بنجاح";
+        this.displayResult(this.message);
+      });
+    }
   }
   uploadeForeFile(){
     if(this.platform.is('ios') || this.platform.is('ipad') || this.platform.is('iphone')){
@@ -313,7 +329,6 @@ export class AccountPage implements OnInit {
         maximumImagesCount:1,
       };
       this.imagePicker.getPictures(options).then((results) => {
-        alert("asdasdsd")
         this.foreFileArray = results[0];
         const arraySplit = this.foreFileArray.split("/tmp/");
         this.foreFileVal = arraySplit[1];
@@ -425,12 +440,12 @@ export class AccountPage implements OnInit {
           if(this.firstFileArray!=undefined && this.firstFileArray!=null && this.firstFileArray!=""){
             let options: FileUploadOptions = {
               fileKey: 'file',
-              fileName:this.firstFileArray.name,
-              mimeType:this.firstFileArray.type,
+              fileName:this.firstFileArray,
+              mimeType:'image/jpg',
               chunkedMode:true,
               headers: {}
             }
-            fileTransfer.upload(this.firstFileArray.localURL, 'https://admin.eswapco.com/api/addImages/'+this.userId+"/1", options)
+            fileTransfer.upload(this.firstFileArray, 'https://admin.eswapco.com/api/addImages/'+this.userId+"/1", options)
               .then((data) => {
               }, (err) => {
               })
