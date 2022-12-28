@@ -291,31 +291,10 @@ export class AccountPage implements OnInit {
       maximumImagesCount:1,
     };
     this.imagePicker.getPictures(options).then((results) => {
-      this.file.resolveLocalFilesystemUrl(results[0]).then((entry)=>{
-        alert(JSON.stringify(entry));
-        this.firstFileArray = entry;
-        this.firstFileVal = entry.name;
-        this.message = "تم تحميل ملف الصورة بنجاح";
-        this.displayResult(this.message);
-      }).catch(errrsss=>{
-        alert(JSON.stringify(errrsss))
-        this.message = "لم يتم تحميل ملف الصورة بنجاح";
-        this.displayResult(this.message);
-      })
-    }, (err) => {
-      this.message = "لم يتم تحميل ملف الصورة بنجاح";
-      this.displayResult(this.message);
-    });
-  }
-  uploadeForeFile(){
-    let  options = {
-      maximumImagesCount:1,
-    };
-    this.imagePicker.getPictures(options).then((results) => {
       this.file.resolveLocalFilesystemUrl(results[0]).then((entry:FileEntry)=>{
         entry.file((file)=>{
-          this.foreFileArray = file;
-          this.foreFileVal = file.name;
+          this.firstFileArray = file;
+          this.firstFileVal = file.name;
           this.message = "تم تحميل ملف الصورة بنجاح";
           this.displayResult(this.message);
         })
@@ -327,6 +306,44 @@ export class AccountPage implements OnInit {
       this.message = "لم يتم تحميل ملف الصورة بنجاح";
       this.displayResult(this.message);
     });
+  }
+  uploadeForeFile(){
+    if(this.platform.is('ios') || this.platform.is('ipad') || this.platform.is('iphone')){
+      let  options = {
+        maximumImagesCount:1,
+      };
+      this.imagePicker.getPictures(options).then((results) => {
+        alert("asdasdsd")
+        this.foreFileArray = results[0];
+        const arraySplit = this.foreFileArray.split("/tmp/");
+        this.foreFileVal = arraySplit[1];
+        this.message = "تم تحميل ملف الصورة بنجاح";
+        this.displayResult(this.message);
+      }, (err) => {
+        this.message = "لم يتم تحميل ملف الصورة بنجاح";
+        this.displayResult(this.message);
+      });
+    }else{
+      let  options = {
+        maximumImagesCount:1,
+      };
+      this.imagePicker.getPictures(options).then((results) => {
+        this.file.resolveLocalFilesystemUrl(results[0]).then((entry:FileEntry)=>{
+          entry.file((file)=>{
+            this.foreFileArray = file.localURL;
+            this.foreFileVal = file.name;
+            this.message = "تم تحميل ملف الصورة بنجاح";
+            this.displayResult(this.message);
+          })
+        }).catch(errrsss=>{
+          this.message = "لم يتم تحميل ملف الصورة بنجاح";
+          this.displayResult(this.message);
+        })
+      }, (err) => {
+        this.message = "لم يتم تحميل ملف الصورة بنجاح";
+        this.displayResult(this.message);
+      });
+    }
   }
   async updateAccount(){
     let disconnectSubscription = this.network.onDisconnect().subscribe(() => {
@@ -421,12 +438,12 @@ export class AccountPage implements OnInit {
           if(this.foreFileArray!=undefined && this.foreFileArray!=null && this.foreFileArray!=""){
             let options: FileUploadOptions = {
               fileKey: 'file',
-              fileName:this.foreFileArray.name,
-              mimeType:this.foreFileArray.type,
+              fileName:this.foreFileVal,
+              mimeType:'image/jpg',
               chunkedMode:false,
               headers: {}
             }
-            fileTransfer.upload(this.foreFileArray.localURL, 'https://admin.eswapco.com/api/addImages/'+this.userId+"/4", options)
+              fileTransfer.upload(this.foreFileArray, 'https://admin.eswapco.com/api/addImages/'+this.userId+"/4", options)
               .then((data) => {
               }, (err) => {
               })
