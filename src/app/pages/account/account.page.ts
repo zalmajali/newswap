@@ -293,7 +293,7 @@ export class AccountPage implements OnInit {
       };
       this.imagePicker.getPictures(options).then((results) => {
         this.firstFileArray = results[0];
-        const arraySplit = this.foreFileArray.split("/tmp/");
+        const arraySplit = this.firstFileArray.split("/tmp/");
         this.firstFileVal = arraySplit[1];
         this.message = "تم تحميل ملف الصورة بنجاح";
         this.displayResult(this.message);
